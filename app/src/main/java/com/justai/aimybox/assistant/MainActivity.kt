@@ -12,7 +12,6 @@ import androidx.core.app.ActivityCompat
 import com.google.android.material.snackbar.Snackbar
 import com.justai.aimybox.components.AimyboxAssistantFragment
 import com.justai.aimybox.components.extensions.isPermissionGranted
-import com.justai.aimybox.core.Config
 import kotlinx.android.synthetic.main.layout_activity_main.*
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
@@ -49,7 +48,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
             val solar = triggers_2.text.split(", ", " ", ",").filter { it.isNotBlank() }
             launch {
                 app.updateTriggerWords(marusya, solar).join()
-                Toast.makeText(this@MainActivity, "Триггеры обновлены", Toast.LENGTH_SHORT).show()
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Триггеры обновлены",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             }
         }
     }

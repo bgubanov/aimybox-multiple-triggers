@@ -5,13 +5,12 @@ import android.app.Application
 import android.util.Log
 import com.justai.aimybox.Aimybox
 import com.justai.aimybox.api.aimybox.AimyboxDialogApi
-import com.justai.aimybox.assistant.skills.*
 import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config
 import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
-import com.justai.aimybox.speechkit.google.platform.GooglePlatformTextToSpeech
 import com.justai.aimybox.speechkit.kaldi.KaldiAssets
 import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
+import com.justai.aimybox.speechkit.yandex.cloud.*
 import com.justai.aimybox.voicetrigger.VoiceTrigger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.asFlow
@@ -27,7 +26,7 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
     companion object {
         private const val AIMYBOX_API_KEY = ""
         private const val AIMYBOX_WEBHOOK_URL_1 =
-            "https://bot.jaicp.com/chatapi/webhook/zenbox/RFJNzBSV:558ae815755abc93cf9da60d2258d8366c57edee"
+            "https://bot.jaicp.com/chatapi/webhook/zenbox/<your_hook_here>"
         private const val AIMYBOX_WEBHOOK_URL_2 = AIMYBOX_WEBHOOK_URL_1
 
     }
@@ -49,22 +48,32 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
         aimybox.unmute()
     }
 
-    private val setOfSkills by lazy {
-        linkedSetOf(
-            AlarmSkill(this), ReminderSkill(this),
-            SettingsSkill(this), TimerSkill(this),
-            ChangeBotSkill(this)
-        )
-    }
-
     private val speechToText = GooglePlatformSpeechToText(this, Locale("RU"))
 
     private val marusyaTextToSpeech by lazy {
-        GooglePlatformTextToSpeech(this, Locale("Ru"))
+        val token = "AgAAAAAjWu2CAATuwWlt16g0F0IYrunICaVEoUs"
+        val folderId = "b1gvt2nubho67sa74uqh"
+        val tokenGenerator = IAmTokenGenerator(token)
+        val textToSpeechConfig =
+            YandexTextToSpeech.Config(
+                voice = Voice.ALENA,
+                emotion = Emotion.GOOD,
+                speed = Speed.DEFAULT
+            )
+        YandexTextToSpeech(this, tokenGenerator, folderId, Language.RU, textToSpeechConfig)
     }
 
     private val solarTextToSpeech by lazy {
-        GooglePlatformTextToSpeech(this, Locale("Ru"))
+        val token = "AgAAAAAjWu2CAATuwWlt16g0F0IYrunICaVEoUs"
+        val folderId = "b1gvt2nubho67sa74uqh"
+        val tokenGenerator = IAmTokenGenerator(token)
+        val textToSpeechConfig =
+            YandexTextToSpeech.Config(
+                voice = Voice.ZAHAR,
+                emotion = Emotion.GOOD,
+                speed = Speed.DEFAULT
+            )
+        YandexTextToSpeech(this, tokenGenerator, folderId, Language.RU, textToSpeechConfig)
     }
 
     private val kaldiVoiceTrigger by lazy {
@@ -78,8 +87,7 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
         val unitId = UUID.randomUUID().toString()
 
         val dialogApi = AimyboxDialogApi(
-            AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_1, setOfSkills
-        )
+            AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_1)
 
         Config.create(speechToText, marusyaTextToSpeech, dialogApi) {
             this.voiceTrigger = currentVoiceTrigger
@@ -90,8 +98,7 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
         val unitId = UUID.randomUUID().toString()
 
         val dialogApi = AimyboxDialogApi(
-            AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_2, setOfSkills
-        )
+            AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_2)
 
         Config.create(speechToText, solarTextToSpeech, dialogApi) {
             voiceTrigger = currentVoiceTrigger

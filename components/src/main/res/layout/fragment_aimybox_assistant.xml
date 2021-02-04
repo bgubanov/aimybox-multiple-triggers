@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_aimybox_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.justai.aimybox.components.view.AimyboxButton
+        android:id="@+id/fragment_aimybox_assistant_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/fragment_aimybox_assistant_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            android:paddingLeft="28dp"
+            android:paddingTop="80dp"
+            android:paddingRight="28dp"
+            android:paddingBottom="80dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/text_input_button"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:src="@drawable/ic_text_input"
+                android:padding="10dp"
+                android:layout_gravity="bottom|start"
+                android:layout_marginBottom="36dp"
+                android:layout_marginStart="20dp"
+                android:tint="@color/white"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/assistant_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:minHeight="56dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="36dp"
+                android:layout_marginBottom="36dp"
+                android:visibility="invisible"
+                android:background="@drawable/shape_text_input_rounded"
+                android:backgroundTint="@color/white"
+                android:maxLines="4"
+                android:inputType="text"
+                android:imeOptions="actionGo"
+                android:maxHeight="56dp"
+                android:paddingStart="24dp"
+                android:paddingEnd="56dp" />
+        </FrameLayout>
+
+    </com.justai.aimybox.components.view.AimyboxButton>
+
+</FrameLayout>

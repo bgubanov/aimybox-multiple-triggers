@@ -12,7 +12,7 @@ android {
     compileSdkVersion(30)
 
     defaultConfig {
-        applicationId = "com.justai.aimybox.assistant"
+        applicationId = "com.justai.aimybox.triggers.kaldi"
 
         minSdkVersion(21)
         targetSdkVersion(30)
@@ -50,11 +50,12 @@ android {
 }
 
 repositories {
-    mavenLocal()
+//    mavenLocal()
     google()
-    jcenter()
     mavenCentral()
     maven("https://kotlin.bintray.com/kotlinx")
+    maven("https://alphacephei.com/maven/")
+    jcenter()
 }
 
 dependencies {
@@ -70,14 +71,14 @@ dependencies {
 
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.1")
-
-//    implementation("com.justai.aimybox:components:$componentsVersion")
     implementation(project(":components"))
-    implementation("com.justai.aimybox:core:$aimyboxVersion")
-    implementation("com.justai.aimybox:google-platform-speechkit:$aimyboxVersion")
-    implementation("com.justai.aimybox:yandex-speechkit:$aimyboxVersion")
-//    implementation("com.justai.aimybox:pocketsphinx-speechkit:$aimyboxVersion")
-//    implementation("com.justai.aimybox:kaldi-speechkit:$aimyboxVersion")
-    implementation(project(":kaldi-speechkit"))
-//    implementation("com.justai.aimybox:pocketsphinx-android-lib:1.0.0")
+    implementation("com.just-ai.aimybox:core:$aimyboxVersion")
+    implementation("com.just-ai.aimybox:google-platform-speechkit:$aimyboxVersion")
+    implementation("com.just-ai.aimybox:yandex-speechkit:$aimyboxVersion")
+    implementation("com.just-ai.aimybox:kaldi-speechkit:$aimyboxVersion")
+
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.9.0"))
+    // define any required OkHttp artifacts without version
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
 }

@@ -26,9 +26,8 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
     companion object {
         private const val AIMYBOX_API_KEY = ""
         private const val AIMYBOX_WEBHOOK_URL_1 =
-            "https://bot.jaicp.com/chatapi/webhook/zenbox/<your_hook_here>"
+            "https://bot.jaicp.com/chatapi/webhook/zenbox/JdAFcjNb:13156b1d7f4adcc27196cb87e5a987362510f7d2"
         private const val AIMYBOX_WEBHOOK_URL_2 = AIMYBOX_WEBHOOK_URL_1
-
     }
 
     var marusyaTriggers = listOf("маруся")

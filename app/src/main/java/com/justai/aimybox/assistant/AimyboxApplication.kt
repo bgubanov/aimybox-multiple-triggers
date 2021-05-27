@@ -7,7 +7,6 @@ import com.justai.aimybox.Aimybox
 import com.justai.aimybox.api.aimybox.AimyboxDialogApi
 import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config
-import com.justai.aimybox.speechkit.google.platform.GooglePlatformSpeechToText
 import com.justai.aimybox.speechkit.kaldi.KaldiAssets
 import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
 import com.justai.aimybox.speechkit.yandex.cloud.*
@@ -26,7 +25,7 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
     companion object {
         private const val AIMYBOX_API_KEY = ""
         private const val AIMYBOX_WEBHOOK_URL_1 =
-            "https://bot.jaicp.com/chatapi/webhook/zenbox/JdAFcjNb:13156b1d7f4adcc27196cb87e5a987362510f7d2"
+            "https://bot.jaicp.com/chatapi/webhook/zenbox/RSITlooL:e8eb9944f142632c58e0721bdd46e2d580177024"
         private const val AIMYBOX_WEBHOOK_URL_2 = AIMYBOX_WEBHOOK_URL_1
     }
 
@@ -47,7 +46,12 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
         aimybox.unmute()
     }
 
-    private val speechToText = GooglePlatformSpeechToText(this, Locale("RU"))
+    private val speechToText by lazy {
+        val token = "AgAAAAAjWu2CAATuwWlt16g0F0IYrunICaVEoUs"
+        val folderId = "b1gvt2nubho67sa74uqh"
+        val tokenGenerator = IAmTokenGenerator(token)
+        YandexSpeechToText(tokenGenerator, folderId, Language.RU)
+    }
 
     private val marusyaTextToSpeech by lazy {
         val token = "AgAAAAAjWu2CAATuwWlt16g0F0IYrunICaVEoUs"

@@ -87,10 +87,16 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
     private val currentVoiceTrigger by lazy { kaldiVoiceTrigger }
 
     val firstAimyboxConfig by lazy {
-        val unitId = UUID.randomUUID().toString()
+        val unitIdString = "unitId"
+        val sharedPreferences = getSharedPreferences("main", MODE_PRIVATE)
+        val sharedUnitId = sharedPreferences.getString(unitIdString, null)
+        val unitId = sharedUnitId ?: UUID.randomUUID().toString()
+        sharedPreferences.edit().putString(unitIdString, unitId).apply()
+        Log.d("unitId", unitId)
 
         val dialogApi = AimyboxDialogApi(
-            AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_1)
+            AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_1
+        )
 
         Config.create(speechToText, marusyaTextToSpeech, dialogApi) {
             this.voiceTrigger = currentVoiceTrigger

@@ -53,30 +53,27 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
         YandexSpeechToText(tokenGenerator, folderId, Language.RU)
     }
 
-    private val marusyaTextToSpeech by lazy {
-        val token = "AgAAAAAjWu2CAATuwWlt16g0F0IYrunICaVEoUs"
-        val folderId = "b1gvt2nubho67sa74uqh"
-        val tokenGenerator = IAmTokenGenerator(token)
-        val textToSpeechConfig =
-            YandexTextToSpeech.Config(
-                voice = Voice.ALENA,
-                emotion = Emotion.GOOD,
-                speed = Speed.DEFAULT
-            )
-        YandexTextToSpeech(this, tokenGenerator, folderId, Language.RU, textToSpeechConfig)
+    private val marusyaConfig by lazy {
+        YandexTextToSpeech.Config(
+            voice = Voice.ALENA,
+            emotion = Emotion.GOOD,
+            speed = Speed.DEFAULT
+        )
     }
 
     private val solarTextToSpeech by lazy {
+        YandexTextToSpeech.Config(
+            voice = Voice.ZAHAR,
+            emotion = Emotion.GOOD,
+            speed = Speed.DEFAULT
+        )
+    }
+
+    private val textToSpeech by lazy {
         val token = "AgAAAAAjWu2CAATuwWlt16g0F0IYrunICaVEoUs"
         val folderId = "b1gvt2nubho67sa74uqh"
         val tokenGenerator = IAmTokenGenerator(token)
-        val textToSpeechConfig =
-            YandexTextToSpeech.Config(
-                voice = Voice.ZAHAR,
-                emotion = Emotion.GOOD,
-                speed = Speed.DEFAULT
-            )
-        YandexTextToSpeech(this, tokenGenerator, folderId, Language.RU, textToSpeechConfig)
+        YandexTextToSpeech.V1(this, tokenGenerator, folderId, Language.RU, marusyaConfig)
     }
 
     private val kaldiVoiceTrigger by lazy {
@@ -86,37 +83,24 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
 
     private val currentVoiceTrigger by lazy { kaldiVoiceTrigger }
 
-    val firstAimyboxConfig by lazy {
+    val firstDialogApi by lazy {
         val unitIdString = "unitId"
         val sharedPreferences = getSharedPreferences("main", MODE_PRIVATE)
         val sharedUnitId = sharedPreferences.getString(unitIdString, null)
         val unitId = sharedUnitId ?: UUID.randomUUID().toString()
         sharedPreferences.edit().putString(unitIdString, unitId).apply()
         Log.d("unitId", unitId)
-
-        val dialogApi = AimyboxDialogApi(
-            AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_1
-        )
-
-        Config.create(speechToText, marusyaTextToSpeech, dialogApi) {
-            this.voiceTrigger = currentVoiceTrigger
-        }
+        AimyboxDialogApi(AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_1)
     }
 
-    val secondAimyboxConfig by lazy {
+    val secondDialogApi by lazy {
         val unitId = UUID.randomUUID().toString()
-
-        val dialogApi = AimyboxDialogApi(
-            AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_2)
-
-        Config.create(speechToText, solarTextToSpeech, dialogApi) {
-            voiceTrigger = currentVoiceTrigger
-        }
+        AimyboxDialogApi(AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_2)
     }
 
     @ExperimentalCoroutinesApi
     @SuppressLint("MissingPermission")
-    fun listenTriggers() {
+    fun listenTriggers() =
         launch {
             aimybox.voiceTriggerEvents.asFlow()
                 .distinctUntilChanged().collect {
@@ -124,11 +108,19 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
                         if (it is VoiceTrigger.Event.Triggered) {
                             Log.e("ChangeTrigger", "Triggered: \"${it.phrase}\", ${it.hashCode()}")
                             if (it.phrase?.trim() in marusyaTriggers) {
-                                if (aimybox.config !== firstAimyboxConfig)
-                                    aimybox.updateConfiguration(firstAimyboxConfig)
+                                if (aimybox.config.dialogApi !== firstDialogApi) {
+                                    aimybox.updateConfiguration(aimybox.config.update {
+                                        dialogApi = firstDialogApi
+                                    })
+                                    textToSpeech.changeConfig(marusyaConfig)
+                                }
                             } else {
-                                if (aimybox.config !== secondAimyboxConfig)
-                                    aimybox.updateConfiguration(secondAimyboxConfig)
+                                if (aimybox.config.dialogApi !== secondDialogApi) {
+                                    aimybox.updateConfiguration(aimybox.config.update {
+                                        dialogApi = secondDialogApi
+                                    })
+                                    textToSpeech.changeConfig(solarTextToSpeech)
+                                }
                             }
                         }
                     } catch (t: Throwable) {
@@ -137,7 +129,12 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
                     }
                 }
         }
-    }
 
-    override val aimybox by lazy { Aimybox(firstAimyboxConfig) }
+    override val aimybox by lazy {
+        Aimybox(
+            Config.create(speechToText, textToSpeech, firstDialogApi) {
+                this.voiceTrigger = currentVoiceTrigger
+            }
+        )
+    }
 }

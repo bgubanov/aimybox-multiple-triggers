@@ -19,10 +19,10 @@ object ClearJsonSkill : CustomSkill<AimyboxRequest, AimyboxResponse> {
     ) = defaultHandler(clearResponse(response))
 
     private val jsonRegex = Regex("\\{.+\\}")
-    private val aimyboxResponseRegex = Regex("AimyboxResponse\\([^)]+\\)")
+    private val aimyboxResponseRegex = Regex("AimyboxBotResponse\\(.+\\)")
 
     private val TextReply.hasJson: Boolean
-        get() = (tts ?: text).contains(jsonRegex)
+        get() = (tts ?: text).run { contains(jsonRegex) || contains(aimyboxResponseRegex) }
 
     private fun TextReply.createReplyWithoutJson(): TextReply {
         val newTts = (tts ?: text)

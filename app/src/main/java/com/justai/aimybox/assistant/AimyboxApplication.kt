@@ -53,8 +53,7 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
         val token = "AgAAAAAjWu2CAATuwWlt16g0F0IYrunICaVEoUs"
         val folderId = "b1gvt2nubho67sa74uqh"
         val tokenGenerator = IAmTokenGenerator(token)
-        val config = YandexSpeechToText.Config(normalizePartialData = true)
-        YandexSpeechToText(tokenGenerator, folderId, Language.RU, config)
+        YandexSpeechToText(tokenGenerator, folderId, Language.RU)
     }
 
     private val marusyaConfig by lazy {

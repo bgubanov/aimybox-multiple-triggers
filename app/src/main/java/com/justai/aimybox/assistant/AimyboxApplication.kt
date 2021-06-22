@@ -5,8 +5,11 @@ import android.app.Application
 import android.util.Log
 import com.justai.aimybox.Aimybox
 import com.justai.aimybox.api.aimybox.AimyboxDialogApi
+import com.justai.aimybox.api.aimybox.AimyboxRequest
+import com.justai.aimybox.api.aimybox.AimyboxResponse
 import com.justai.aimybox.components.AimyboxProvider
 import com.justai.aimybox.core.Config
+import com.justai.aimybox.core.CustomSkill
 import com.justai.aimybox.speechkit.kaldi.KaldiAssets
 import com.justai.aimybox.speechkit.kaldi.KaldiVoiceTrigger
 import com.justai.aimybox.speechkit.yandex.cloud.*
@@ -50,7 +53,8 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
         val token = "AgAAAAAjWu2CAATuwWlt16g0F0IYrunICaVEoUs"
         val folderId = "b1gvt2nubho67sa74uqh"
         val tokenGenerator = IAmTokenGenerator(token)
-        YandexSpeechToText(tokenGenerator, folderId, Language.RU)
+        val config = YandexSpeechToText.Config(normalizePartialData = true)
+        YandexSpeechToText(tokenGenerator, folderId, Language.RU, config)
     }
 
     private val marusyaConfig by lazy {
@@ -83,6 +87,12 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
 
     private val currentVoiceTrigger by lazy { kaldiVoiceTrigger }
 
+    val setOfSkills by lazy {
+        linkedSetOf<CustomSkill<AimyboxRequest, AimyboxResponse>>(
+            ClearJsonSkill
+        )
+    }
+
     val firstDialogApi by lazy {
         val unitIdString = "unitId"
         val sharedPreferences = getSharedPreferences("main", MODE_PRIVATE)
@@ -90,12 +100,12 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
         val unitId = sharedUnitId ?: UUID.randomUUID().toString()
         sharedPreferences.edit().putString(unitIdString, unitId).apply()
         Log.d("unitId", unitId)
-        AimyboxDialogApi(AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_1)
+        AimyboxDialogApi(AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_1, setOfSkills)
     }
 
     val secondDialogApi by lazy {
         val unitId = UUID.randomUUID().toString()
-        AimyboxDialogApi(AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_2)
+        AimyboxDialogApi(AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_2, setOfSkills)
     }
 
     @ExperimentalCoroutinesApi

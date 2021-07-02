@@ -2,6 +2,7 @@ package com.justai.aimybox.assistant
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.provider.Settings
 import android.util.Log
 import com.justai.aimybox.Aimybox
 import com.justai.aimybox.api.aimybox.AimyboxDialogApi
@@ -87,9 +88,7 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
     private val currentVoiceTrigger by lazy { kaldiVoiceTrigger }
 
     val setOfSkills by lazy {
-        linkedSetOf<CustomSkill<AimyboxRequest, AimyboxResponse>>(
-            ClearJsonSkill
-        )
+        linkedSetOf<CustomSkill<AimyboxRequest, AimyboxResponse>>(ClearJsonSkill)
     }
 
     val firstDialogApi by lazy {
@@ -98,12 +97,16 @@ class AimyboxApplication : Application(), AimyboxProvider, CoroutineScope {
         val sharedUnitId = sharedPreferences.getString(unitIdString, null)
         val unitId = sharedUnitId ?: UUID.randomUUID().toString()
         sharedPreferences.edit().putString(unitIdString, unitId).apply()
-        Log.d("unitId", unitId)
+        Log.d("unitId1", unitId)
         AimyboxDialogApi(AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_1, setOfSkills)
     }
 
     val secondDialogApi by lazy {
-        val unitId = UUID.randomUUID().toString()
+        val unitId = Settings.Secure.getString(
+            applicationContext.contentResolver,
+            Settings.Secure.ANDROID_ID
+        )
+        Log.d("unitId2", unitId)
         AimyboxDialogApi(AIMYBOX_API_KEY, unitId, AIMYBOX_WEBHOOK_URL_2, setOfSkills)
     }
 
